@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Yrityksen muutoshalu ja muutoskyky – kysely</title>
+  <style>
+    :root{
+      --bg:#0b0c10;
+      --card:#12141c;
+      --text:#f3f4f6;
+      --muted:#a7b0c0;
+      --line:#273043;
+      --accent:#ffd400;
+      --danger:#ff5a5f;
+      --ok:#22c55e;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 20% -10%, rgba(255,212,0,.18), transparent 55%),
+                  radial-gradient(1000px 600px at 90% 0%, rgba(99,102,241,.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.5;
+    }
+
+    .wrap{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .container{
+      width:100%;
+      max-width:920px;
+      background: linear-gradient(180deg, rgba(18,20,28,.95), rgba(18,20,28,.86));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:18px;
+      box-shadow: 0 14px 45px rgba(0,0,0,.45);
+      overflow:hidden;
+    }
+
+    header{
+      padding:22px 22px 16px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size:1.25rem;
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .content{ padding:18px 22px 22px; }
+
+    .note{
+      background: rgba(255,212,0,.08);
+      border:1px solid rgba(255,212,0,.25);
+      color: var(--text);
+      border-radius:14px;
+      padding:12px 14px;
+      margin: 0 0 16px;
+      font-size:.95rem;
+    }
+
+    .scale{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      padding:12px 14px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      background: rgba(255,255,255,.03);
+      margin-bottom:16px;
+    }
+    .scale strong{ color:var(--text); }
+    .scale .muted{ color:var(--muted); font-size:.93rem; }
+
+    form{ display:block; }
+
+    .q{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      background: rgba(255,255,255,.03);
+      padding:14px;
+      margin-bottom:12px;
+    }
+
+    .q-title{
+      margin:0 0 10px;
+      font-size:1rem;
+      color:var(--text);
+    }
+
+    .likert{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap:10px;
+    }
+
+    .choice{
+      position:relative;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.12);
+      border-radius:12px;
+      padding:10px 8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .08s ease, border-color .12s ease, background .12s ease;
+      min-height:44px;
+    }
+
+    .choice:hover{
+      border-color: rgba(255,212,0,.35);
+      transform: translateY(-1px);
+    }
+
+    .choice input{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
+    }
+
+    .pill{
+      font-weight:700;
+      width:26px;
+      height:26px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      border:1px solid rgba(255,255,255,.14);
+      color: var(--text);
+      font-size:.9rem;
+      background: rgba(255,255,255,.04);
+    }
+
+    .choice span{
+      color:var(--muted);
+      font-size:.85rem;
+      display:none; /* näytetään mobiilissa vaihtoehtoisesti */
+    }
+
+    /* valittu */
+    .choice:has(input:checked){
+      border-color: rgba(255,212,0,.55);
+      background: rgba(255,212,0,.10);
+    }
+    .choice:has(input:checked) .pill{
+      border-color: rgba(255,212,0,.75);
+      background: rgba(255,212,0,.18);
+      color: var(--text);
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:14px;
+    }
+
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:700;
+      letter-spacing:.2px;
+      transition: transform .08s ease, border-color .12s ease, background .12s ease;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,212,0,.40);
+    }
+    .btn.primary{
+      border-color: rgba(255,212,0,.55);
+      background: rgba(255,212,0,.18);
+    }
+
+    .msg{
+      margin:0;
+      font-size:.95rem;
+      color:var(--muted);
+    }
+    .msg.error{ color: var(--danger); }
+    .msg.ok{ color: var(--ok); }
+
+    .results{
+      display:none;
+      margin-top:18px;
+      border-top:1px solid rgba(255,255,255,.06);
+      padding-top:16px;
+    }
+
+    .results h2{
+      margin:0 0 10px;
+      font-size:1.1rem;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:12px;
+    }
+
+    .card{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      background: rgba(255,255,255,.03);
+      padding:14px;
+    }
+
+    .card h3{
+      margin:0 0 6px;
+      font-size:1rem;
+    }
+
+    .score{
+      display:flex;
+      align-items:baseline;
+      gap:10px;
+      margin:6px 0 8px;
+    }
+
+    .score .num{
+      font-size:1.8rem;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .score .outof{
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .desc{
+      margin:0;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    footer{
+      padding:14px 22px 20px;
+      color:var(--muted);
+      font-size:.9rem;
+      border-top:1px solid rgba(255,255,255,.06);
+    }
+
+    /* Responsiivisuus */
+    @media (max-width: 720px){
+      .grid{ grid-template-columns: 1fr; }
+      .likert{ grid-template-columns: repeat(5, minmax(0, 1fr)); gap:8px; }
+      .choice{ padding:10px 6px; }
+      .choice span{ display:none; }
+      h1{ font-size:1.12rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .choice, .btn{ transition:none; }
+      .choice:hover, .btn:hover{ transform:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="container">
+      <header>
+        <h1>Yrityksen muutoshalu ja muutoskyky</h1>
+        <p class="subtitle">Vastaa sen mukaan, miten asiat mielestäsi todellisuudessa toimivat – ei sen mukaan, miten niiden pitäisi toimia.</p>
+      </header>
+
+      <div class="content">
+        <div class="note">
+          <strong>Ohje:</strong> Valitse jokaisesta väittämästä sopivin vaihtoehto asteikolla 1–5. Käytä rohkeasti koko asteikkoa.
+        </div>
+
+        <div class="scale" aria-label="Asteikko">
+          <div><strong>Asteikko</strong></div>
+          <div class="muted">
+            1 = Täysin eri mieltä &nbsp;·&nbsp;
+            2 = Jokseenkin eri mieltä &nbsp;·&nbsp;
+            3 = Ei samaa eikä eri mieltä &nbsp;·&nbsp;
+            4 = Jokseenkin samaa mieltä &nbsp;·&nbsp;
+            5 = Täysin samaa mieltä
+          </div>
+        </div>
+
+        <form id="survey" novalidate>
+          <!-- Kysymykset (sekoitettu) -->
+          <div class="q" data-dim="D4">
+            <p class="q-title">1) Yrityksessämme ollaan valmiita käyttämään aikaa ja energiaa kehittämiseen arjen kiireestä huolimatta.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 1">
+              <!-- radios -->
+            </div>
+          </div>
+
+          <div class="q" data-dim="D2">
+            <p class="q-title">2) Seuraamme aktiivisesti toimialan, teknologian ja toimintaympäristön muutoksia.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 2"></div>
+          </div>
+
+          <div class="q" data-dim="D1">
+            <p class="q-title">3) Haluamme kehittää uusia tuotteita, palveluja tai toimintamalleja.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 3"></div>
+          </div>
+
+          <div class="q" data-dim="D3">
+            <p class="q-title">4) Virheistä opitaan ja oppeja hyödynnetään toiminnan kehittämisessä.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 4"></div>
+          </div>
+
+          <div class="q" data-dim="D2">
+            <p class="q-title">5) Päätöksenteossa huomioidaan yrityksen pitkän aikavälin kestävyys, ei vain lyhyen aikavälin tulos.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 5"></div>
+          </div>
+
+          <div class="q" data-dim="D4">
+            <p class="q-title">6) Vastuun ottaminen ja päätösten tekeminen onnistuu myös epävarmoissa tilanteissa.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 6"></div>
+          </div>
+
+          <div class="q" data-dim="D1">
+            <p class="q-title">7) Yhteistyö asiakkaiden, kumppaneiden ja muiden sidosryhmien kanssa on tärkeää.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 7"></div>
+          </div>
+
+          <div class="q" data-dim="D3">
+            <p class="q-title">8) Toimintatapoja ollaan valmiita muuttamaan, jos se tukee yrityksen kehittymistä.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 8"></div>
+          </div>
+
+          <div class="q" data-dim="D2">
+            <p class="q-title">9) Haluamme kehittää osaamistamme vastaamaan tulevaisuuden tarpeita.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 9"></div>
+          </div>
+
+          <div class="q" data-dim="D1">
+            <p class="q-title">10) Koen, että yrityksemme toiminnalla on selkeä merkitys ja tarkoitus.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 10"></div>
+          </div>
+
+          <div class="q" data-dim="D4">
+            <p class="q-title">11) Koen, että meillä on toimivia sisäisiä ja ulkoisia verkostoja, jotka tukevat muutoksissa.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 11"></div>
+          </div>
+
+          <div class="q" data-dim="D3">
+            <p class="q-title">12) Koen, että olemme valmiita kokeilemaan uutta, vaikka siihen liittyisi epäonnistumisen riski.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 12"></div>
+          </div>
+
+          <div class="q" data-dim="D2">
+            <p class="q-title">13) Koen, että muutokset nähdään meillä pääsääntöisesti mahdollisuuksina, ei uhkina.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 13"></div>
+          </div>
+
+          <div class="q" data-dim="D4">
+            <p class="q-title">14) Toimimme rakentavasti ja ratkaisuhakuisesti tilanteissa, jotka vaativat nopeaa reagointia.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 14"></div>
+          </div>
+
+          <div class="q" data-dim="D1">
+            <p class="q-title">15) Meillä uskalletaan edetä ja tehdä päätöksiä, vaikka kaikki ei olisi vielä täysin varmaa.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 15"></div>
+          </div>
+
+          <div class="q" data-dim="D3">
+            <p class="q-title">16) Meillä työskennellään mielellään myös sellaisten asioiden parissa, jotka eivät ole ennestään tuttuja.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 16"></div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" type="submit">Lähetä</button>
+            <button class="btn" type="button" id="resetBtn">Tyhjennä</button>
+            <p id="msg" class="msg" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+
+        <section class="results" id="results" aria-live="polite">
+          <h2>Tuloksesi</h2>
+          <div class="grid">
+            <div class="card">
+              <h3>1) Sisäinen motivaatio ja merkitys (HALU)</h3>
+              <div class="score"><div class="num" id="avgD1">–</div><div class="outof">/ 5</div></div>
+              <p class="desc">
+                Tulos kuvaa, kuinka merkitykselliseksi ja motivoivaksi yrityksen kehittäminen koetaan sekä
+                miten vahvasti suunta on “sisäisesti” perusteltu (tarkoitus, rohkeus ja yhteistyön arvo).
+              </p>
+            </div>
+
+            <div class="card">
+              <h3>2) Tulevaisuussuuntautuneisuus (HALU)</h3>
+              <div class="score"><div class="num" id="avgD2">–</div><div class="outof">/ 5</div></div>
+              <p class="desc">
+                Tulos kuvaa, miten yrityksessä suhtaudutaan muutokseen ja tulevaan: seurataanko ympäristöä,
+                nähdäänkö muutokset mahdollisuuksina ja kehitetäänkö osaamista tulevaisuuden tarpeisiin.
+              </p>
+            </div>
+
+            <div class="card">
+              <h3>3) Osaaminen ja oppiminen (KYKY)</h3>
+              <div class="score"><div class="num" id="avgD3">–</div><div class="outof">/ 5</div></div>
+              <p class="desc">
+                Tulos kuvaa kykyä oppia ja uudistua käytännössä: kokeillaanko, opitaanko virheistä ja
+                muutetaanko toimintatapoja, kun se tukee kehittymistä.
+              </p>
+            </div>
+
+            <div class="card">
+              <h3>4) Toimintavalmius ja yhteistyö (KYKY)</h3>
+              <div class="score"><div class="num" id="avgD4">–</div><div class="outof">/ 5</div></div>
+              <p class="desc">
+                Tulos kuvaa toimeenpanokykyä arjessa: löytyykö aikaa ja energiaa kehittämiseen, saako muutoksissa tukea
+                verkostoista ja pystytäänkö tekemään päätöksiä sekä reagoimaan nopeasti.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // Luo 1–5 Likert-vaihtoehdot jokaiselle kysymykselle
+    const questions = Array.from(document.querySelectorAll(".q"));
+    questions.forEach((q, idx) => {
+      const likert = q.querySelector(".likert");
+      const name = "q" + (idx + 1);
+      for (let v = 1; v <= 5; v++) {
+        const label = document.createElement("label");
+        label.className = "choice";
+        label.innerHTML = `
+          <input type="radio" name="${name}" value="${v}" />
+          <div class="pill">${v}</div>
+          <span>${v}</span>
+        `;
+        likert.appendChild(label);
+      }
+    });
+
+    const form = document.getElementById("survey");
+    const msg = document.getElementById("msg");
+    const results = document.getElementById("results");
+
+    const out = {
+      D1: document.getElementById("avgD1"),
+      D2: document.getElementById("avgD2"),
+      D3: document.getElementById("avgD3"),
+      D4: document.getElementById("avgD4"),
+    };
+
+    function setMessage(text, kind){
+      msg.textContent = text || "";
+      msg.className = "msg" + (kind ? " " + kind : "");
+    }
+
+    function mean(arr){
+      if (!arr.length) return null;
+      const sum = arr.reduce((a,b)=>a+b,0);
+      return sum / arr.length;
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      setMessage("", "");
+
+      // Kerää vastaukset ulottuvuuksittain
+      const buckets = { D1: [], D2: [], D3: [], D4: [] };
+
+      let allAnswered = true;
+
+      questions.forEach((q, idx) => {
+        const dim = q.getAttribute("data-dim");
+        const name = "q" + (idx + 1);
+        const checked = form.querySelector(`input[name="${name}"]:checked`);
+        if (!checked) {
+          allAnswered = false;
+          q.style.borderColor = "rgba(255,90,95,.75)";
+        } else {
+          q.style.borderColor = "rgba(255,255,255,.08)";
+          buckets[dim].push(Number(checked.value));
+        }
+      });
+
+      if (!allAnswered) {
+        setMessage("Vastaa kaikkiin väittämiin ennen lähettämistä.", "error");
+        results.style.display = "none";
+        // vieritä ensimmäiseen puuttuvaan
+        const firstMissing = questions.find((q, idx) => {
+          const name = "q" + (idx + 1);
+          return !form.querySelector(`input[name="${name}"]:checked`);
+        });
+        if (firstMissing) firstMissing.scrollIntoView({ behavior:"smooth", block:"center" });
+        return;
+      }
+
+      // Laske keskiarvot ja näytä
+      const avgD1 = mean(buckets.D1);
+      const avgD2 = mean(buckets.D2);
+      const avgD3 = mean(buckets.D3);
+      const avgD4 = mean(buckets.D4);
+
+      out.D1.textContent = avgD1.toFixed(2);
+      out.D2.textContent = avgD2.toFixed(2);
+      out.D3.textContent = avgD3.toFixed(2);
+      out.D4.textContent = avgD4.toFixed(2);
+
+      results.style.display = "block";
+      setMessage("Kiitos! Tulokset on laskettu alla.", "ok");
+      results.scrollIntoView({ behavior:"smooth", block:"start" });
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      form.reset();
+      setMessage("", "");
+      results.style.display = "none";
+      questions.forEach(q => q.style.borderColor = "rgba(255,255,255,.08)");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>
