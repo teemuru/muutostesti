@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Yrityksen muutoshalu ja muutoskyky – kysely</title>
+  <title>Yrityksen muutoshalu ja muutoskyky</title>
   <style>
     :root{
       --bg:#0b0c10;
@@ -148,12 +148,6 @@
       background: rgba(255,255,255,.04);
     }
 
-    .choice span{
-      color:var(--muted);
-      font-size:.85rem;
-      display:none; /* näytetään mobiilissa vaihtoehtoisesti */
-    }
-
     /* valittu */
     .choice:has(input:checked){
       border-color: rgba(255,212,0,.55);
@@ -256,19 +250,11 @@
       font-size:.95rem;
     }
 
-    footer{
-      padding:14px 22px 20px;
-      color:var(--muted);
-      font-size:.9rem;
-      border-top:1px solid rgba(255,255,255,.06);
-    }
-
     /* Responsiivisuus */
     @media (max-width: 720px){
       .grid{ grid-template-columns: 1fr; }
       .likert{ grid-template-columns: repeat(5, minmax(0, 1fr)); gap:8px; }
       .choice{ padding:10px 6px; }
-      .choice span{ display:none; }
       h1{ font-size:1.12rem; }
     }
 
@@ -304,12 +290,10 @@
         </div>
 
         <form id="survey" novalidate>
-          <!-- Kysymykset (sekoitettu) -->
+          <!-- Kysymykset (sekoitettu). data-dim kertoo ulottuvuuden. -->
           <div class="q" data-dim="D4">
             <p class="q-title">1) Yrityksessämme ollaan valmiita käyttämään aikaa ja energiaa kehittämiseen arjen kiireestä huolimatta.</p>
-            <div class="likert" role="radiogroup" aria-label="Kysymys 1">
-              <!-- radios -->
-            </div>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 1"></div>
           </div>
 
           <div class="q" data-dim="D2">
@@ -338,7 +322,7 @@
           </div>
 
           <div class="q" data-dim="D1">
-            <p class="q-title">7) Yhteistyö asiakkaiden, kumppaneiden ja muiden sidosryhmien kanssa on tärkeää.</p>
+            <p class="q-title">7) Yhteistyö asiakkaiden, kumppaneiden ja muiden sidosryhmien kanssa koetaan tärkeäksi.</p>
             <div class="likert" role="radiogroup" aria-label="Kysymys 7"></div>
           </div>
 
@@ -387,6 +371,27 @@
             <div class="likert" role="radiogroup" aria-label="Kysymys 16"></div>
           </div>
 
+          <!-- Uudet lisäkysymykset (1 per ulottuvuus), pidetään sekoitettuna -->
+          <div class="q" data-dim="D2">
+            <p class="q-title">17) Meillä keskustellaan säännöllisesti siitä, millainen yrityksen tulisi olla 3–5 vuoden kuluttua.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 17"></div>
+          </div>
+
+          <div class="q" data-dim="D1">
+            <p class="q-title">18) Meillä koetaan, että yrityksen kehittäminen on tärkeää myös silloin, kun se ei tuota välitöntä hyötyä.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 18"></div>
+          </div>
+
+          <div class="q" data-dim="D4">
+            <p class="q-title">19) Meillä muutoksiin liittyvät päätökset viedään systemaattisesti käytäntöön, eivätkä ne jää vain puheeksi.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 19"></div>
+          </div>
+
+          <div class="q" data-dim="D3">
+            <p class="q-title">20) Meillä pysähdytään tietoisesti pohtimaan, mitä opimme tehdyistä kokeiluista ja päätöksistä.</p>
+            <div class="likert" role="radiogroup" aria-label="Kysymys 20"></div>
+          </div>
+
           <div class="actions">
             <button class="btn primary" type="submit">Lähetä</button>
             <button class="btn" type="button" id="resetBtn">Tyhjennä</button>
@@ -401,8 +406,8 @@
               <h3>1) Sisäinen motivaatio ja merkitys (HALU)</h3>
               <div class="score"><div class="num" id="avgD1">–</div><div class="outof">/ 5</div></div>
               <p class="desc">
-                Tulos kuvaa, kuinka merkitykselliseksi ja motivoivaksi yrityksen kehittäminen koetaan sekä
-                miten vahvasti suunta on “sisäisesti” perusteltu (tarkoitus, rohkeus ja yhteistyön arvo).
+                Tulos kuvaa, miten vahvana yrityksessä koetaan kehittämisen merkitys ja sisäinen motivaatio
+                (tarkoitus, rohkeus edetä ja yhteistyön arvo).
               </p>
             </div>
 
@@ -410,8 +415,8 @@
               <h3>2) Tulevaisuussuuntautuneisuus (HALU)</h3>
               <div class="score"><div class="num" id="avgD2">–</div><div class="outof">/ 5</div></div>
               <p class="desc">
-                Tulos kuvaa, miten yrityksessä suhtaudutaan muutokseen ja tulevaan: seurataanko ympäristöä,
-                nähdäänkö muutokset mahdollisuuksina ja kehitetäänkö osaamista tulevaisuuden tarpeisiin.
+                Tulos kuvaa, miten yrityksessä suhtaudutaan tulevaan ja muutokseen: seurataanko ympäristöä,
+                rakennetaanko yhteistä suuntaa ja kehitetäänkö osaamista tulevaisuuden tarpeisiin.
               </p>
             </div>
 
@@ -419,8 +424,8 @@
               <h3>3) Osaaminen ja oppiminen (KYKY)</h3>
               <div class="score"><div class="num" id="avgD3">–</div><div class="outof">/ 5</div></div>
               <p class="desc">
-                Tulos kuvaa kykyä oppia ja uudistua käytännössä: kokeillaanko, opitaanko virheistä ja
-                muutetaanko toimintatapoja, kun se tukee kehittymistä.
+                Tulos kuvaa, miten yrityksessä opitaan ja uudistutaan käytännössä: kokeillaanko, opitaanko virheistä
+                ja pysähdytäänkö reflektoimaan oppeja.
               </p>
             </div>
 
@@ -428,16 +433,13 @@
               <h3>4) Toimintavalmius ja yhteistyö (KYKY)</h3>
               <div class="score"><div class="num" id="avgD4">–</div><div class="outof">/ 5</div></div>
               <p class="desc">
-                Tulos kuvaa toimeenpanokykyä arjessa: löytyykö aikaa ja energiaa kehittämiseen, saako muutoksissa tukea
-                verkostoista ja pystytäänkö tekemään päätöksiä sekä reagoimaan nopeasti.
+                Tulos kuvaa, miten muutoskyky näkyy arjessa: löytyykö resursseja ja tukea, tehdäänkö päätöksiä epävarmuudessa
+                ja viedäänkö muutokset käytäntöön.
               </p>
             </div>
           </div>
         </section>
       </div>
-
-      <footer>
-      </footer>
     </div>
   </div>
 
@@ -453,7 +455,6 @@
         label.innerHTML = `
           <input type="radio" name="${name}" value="${v}" />
           <div class="pill">${v}</div>
-          <span>${v}</span>
         `;
         likert.appendChild(label);
       }
@@ -487,7 +488,6 @@
 
       // Kerää vastaukset ulottuvuuksittain
       const buckets = { D1: [], D2: [], D3: [], D4: [] };
-
       let allAnswered = true;
 
       questions.forEach((q, idx) => {
@@ -506,7 +506,6 @@
       if (!allAnswered) {
         setMessage("Vastaa kaikkiin väittämiin ennen lähettämistä.", "error");
         results.style.display = "none";
-        // vieritä ensimmäiseen puuttuvaan
         const firstMissing = questions.find((q, idx) => {
           const name = "q" + (idx + 1);
           return !form.querySelector(`input[name="${name}"]:checked`);
@@ -515,16 +514,11 @@
         return;
       }
 
-      // Laske keskiarvot ja näytä
-      const avgD1 = mean(buckets.D1);
-      const avgD2 = mean(buckets.D2);
-      const avgD3 = mean(buckets.D3);
-      const avgD4 = mean(buckets.D4);
-
-      out.D1.textContent = avgD1.toFixed(2);
-      out.D2.textContent = avgD2.toFixed(2);
-      out.D3.textContent = avgD3.toFixed(2);
-      out.D4.textContent = avgD4.toFixed(2);
+      // Keskiarvot ulottuvuuksittain (D1–D4)
+      out.D1.textContent = mean(buckets.D1).toFixed(2);
+      out.D2.textContent = mean(buckets.D2).toFixed(2);
+      out.D3.textContent = mean(buckets.D3).toFixed(2);
+      out.D4.textContent = mean(buckets.D4).toFixed(2);
 
       results.style.display = "block";
       setMessage("Kiitos! Tulokset on laskettu alla.", "ok");
